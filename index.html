@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nebula Studio - Generador & Editor de Shaders GLSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <i data-lucide="orbit"></i>
+        <span>NEBULA<b>STUDIO</b></span>
+      </div>
+      <div class="header-actions">
+        <div class="fps-badge">
+          <span id="fps-counter">FPS: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="app-body">
+      <!-- Sidebar / Editor Panel -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h2 class="section-title">
+            <i data-lucide="sliders"></i> Modo Visual
+          </h2>
+          <div class="control-group">
+            <label for="mode-select">Efecto Shader</label>
+            <div class="select-wrapper">
+              <select id="mode-select">
+                <option value="1.0" selected>Galaxia Espiral (Galaxy)</option>
+                <option value="0.0">Vía Láctea (Milky Way)</option>
+                <option value="2.0">Túnel Cósmico (Normal)</option>
+                <option value="3.0">Túnel Cósmico (Bucle Infinito)</option>
+                <option value="4.0">Túnel Cósmico (Oscilante Exacto)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Presets -->
+        <div class="sidebar-section">
+          <h2 class="section-title">
+            <i data-lucide="wand-2"></i> Ajustes Preestablecidos (Presets)
+          </h2>
+          <div class="presets-grid">
+            <div class="presets-row mode-galaxy-only">
+              <button class="preset-btn active" data-mode="galaxy" data-preset="default">Por Defecto</button>
+              <button class="preset-btn" data-mode="galaxy" data-preset="hypernova">Supernova</button>
+              <button class="preset-btn" data-mode="galaxy" data-preset="blackhole">Agujero Negro</button>
+              <button class="preset-btn" data-mode="galaxy" data-preset="aquanebula">Nebulosa Aqua</button>
+            </div>
+            <div class="presets-row mode-milkyway-only" style="display: none;">
+              <button class="preset-btn" data-mode="milkyway" data-preset="default">Por Defecto</button>
+              <button class="preset-btn" data-mode="milkyway" data-preset="cosmicfire">Fuego Cósmico</button>
+              <button class="preset-btn" data-mode="milkyway" data-preset="deeppurple">Púrpura Profundo</button>
+              <button class="preset-btn" data-mode="milkyway" data-preset="emeraldaurora">Aurora Esmeralda</button>
+            </div>
+            <div class="presets-row mode-tunnel-only" style="display: none;">
+              <button class="preset-btn" data-mode="tunnel" data-preset="default">Por Defecto</button>
+              <button class="preset-btn" data-mode="tunnel" data-preset="wormhole">Agujero Gusano</button>
+              <button class="preset-btn" data-mode="tunnel" data-preset="nebulapass">Paso Nebulosa</button>
+              <button class="preset-btn" data-mode="tunnel" data-preset="cybertunnel">Cíber Túnel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable Parameters -->
+        <div class="params-scroll">
+          
+          <!-- General Parameters -->
+          <div class="accordion-item expanded">
+            <div class="accordion-header">
+              <span><i data-lucide="settings"></i> Ajustes Generales</span>
+            </div>
+            <div class="accordion-content">
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-speed">Velocidad de Animación</label>
+                  <span class="value-badge">1.0</span>
+                </div>
+                <input type="range" id="input-speed" class="setting-input" min="0.0" max="3.0" step="0.05" value="1.0">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-brightness">Brillo Global</label>
+                  <span class="value-badge">1.0</span>
+                </div>
+                <input type="range" id="input-brightness" class="setting-input" min="0.1" max="2.5" step="0.05" value="1.0">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tint">Tono de Color (Global)</label>
+                </div>
+                <input type="color" id="input-tint" class="setting-input color-picker" value="#ffffff">
+              </div>
+            </div>
+          </div>
+
+          <!-- Stars Parameters -->
+          <div class="accordion-item expanded">
+            <div class="accordion-header">
+              <span><i data-lucide="sparkles"></i> Fondo de Estrellas</span>
+            </div>
+            <div class="accordion-content">
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-star-density">Densidad de Estrellas</label>
+                  <span class="value-badge">0.5</span>
+                </div>
+                <input type="range" id="input-star-density" class="setting-input" min="0.0" max="1.0" step="0.05" value="0.5">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-star-brightness">Brillo de Estrellas</label>
+                  <span class="value-badge">6.0</span>
+                </div>
+                <input type="range" id="input-star-brightness" class="setting-input" min="1.0" max="12.0" step="0.2" value="6.0">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-star-speed">Velocidad de Estrellas</label>
+                  <span class="value-badge">1.0</span>
+                </div>
+                <input type="range" id="input-star-speed" class="setting-input" min="0.0" max="3.0" step="0.05" value="1.0">
+              </div>
+            </div>
+          </div>
+
+          <!-- Galaxy Settings -->
+          <div id="galaxy-controls" class="accordion-item expanded">
+            <div class="accordion-header">
+              <span><i data-lucide="aperture"></i> Parámetros de la Galaxia</span>
+            </div>
+            <div class="accordion-content">
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-galaxy-swirl">Fuerza de Remolino (Swirl)</label>
+                  <span class="value-badge">2.5</span>
+                </div>
+                <input type="range" id="input-galaxy-swirl" class="setting-input" min="0.5" max="8.0" step="0.1" value="2.5">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-galaxy-swirl-speed">Velocidad de Remolino</label>
+                  <span class="value-badge">0.225</span>
+                </div>
+                <input type="range" id="input-galaxy-swirl-speed" class="setting-input" min="0.0" max="1.0" step="0.025" value="0.225">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-galaxy-radius">Tamaño / Radio de Núcleo</label>
+                  <span class="value-badge">1.65</span>
+                </div>
+                <input type="range" id="input-galaxy-radius" class="setting-input" min="0.8" max="3.0" step="0.05" value="1.65">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-galaxy-light">Intensidad de Luz Central</label>
+                  <span class="value-badge">4.0</span>
+                </div>
+                <input type="range" id="input-galaxy-light" class="setting-input" min="1.0" max="10.0" step="0.1" value="4.0">
+              </div>
+
+              <div class="control-group color-row">
+                <div class="color-control">
+                  <label for="input-galaxy-col1">Color Núcleo</label>
+                  <input type="color" id="input-galaxy-col1" class="setting-input color-picker" value="#c0804d">
+                </div>
+                <div class="color-control">
+                  <label for="input-galaxy-col2">Color Brazos</label>
+                  <input type="color" id="input-galaxy-col2" class="setting-input color-picker" value="#8c66f2">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Milky Way Settings -->
+          <div id="milkyway-controls" class="accordion-item expanded" style="display: none;">
+            <div class="accordion-header">
+              <span><i data-lucide="waves"></i> Parámetros de la Vía Láctea</span>
+            </div>
+            <div class="accordion-content">
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-milkyway-swirl">Fuerza de Remolino</label>
+                  <span class="value-badge">0.25</span>
+                </div>
+                <input type="range" id="input-milkyway-swirl" class="setting-input" min="0.0" max="1.5" step="0.05" value="0.25">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-milkyway-speed">Velocidad del Gas</label>
+                  <span class="value-badge">1.0</span>
+                </div>
+                <input type="range" id="input-milkyway-speed" class="setting-input" min="0.0" max="3.0" step="0.05" value="1.0">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-milkyway-offset">Desplazamiento Y</label>
+                  <span class="value-badge">0.0</span>
+                </div>
+                <input type="range" id="input-milkyway-offset" class="setting-input" min="-0.5" max="0.5" step="0.02" value="0.0">
+              </div>
+
+              <div class="control-group color-row">
+                <div class="color-control">
+                  <label for="input-milkyway-bg-blue">Gas Azul (Fondo)</label>
+                  <input type="color" id="input-milkyway-bg-blue" class="setting-input color-picker" value="#333366">
+                </div>
+                <div class="color-control">
+                  <label for="input-milkyway-bg-white">Gas Claro (Fondo)</label>
+                  <input type="color" id="input-milkyway-bg-white" class="setting-input color-picker" value="#80ffd9">
+                </div>
+              </div>
+
+              <!-- Cosine Palette parameters mapped to color pickers for convenience -->
+              <h3 class="subsection-title">Paleta de Color Cosine</h3>
+              <div class="palette-colors-grid">
+                <div class="color-control">
+                  <label for="input-palette-a" title="Brillo base del color (A)">Base (A)</label>
+                  <input type="color" id="input-palette-a" class="setting-input color-picker" value="#808080">
+                </div>
+                <div class="color-control">
+                  <label for="input-palette-b" title="Amplitud / Intensidad (B)">Intensidad (B)</label>
+                  <input type="color" id="input-palette-b" class="setting-input color-picker" value="#e1a7cc">
+                </div>
+                <div class="color-control">
+                  <label for="input-palette-c" title="Frecuencia / Repetición (C)">Ciclo (C)</label>
+                  <input type="color" id="input-palette-c" class="setting-input color-picker" value="#cbe751">
+                </div>
+                <div class="color-control">
+                  <label for="input-palette-d" title="Fase / Desfase (D)">Fase (D)</label>
+                  <input type="color" id="input-palette-d" class="setting-input color-picker" value="#004400">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cosmic Tunnel Settings -->
+          <div id="tunnel-controls" class="accordion-item expanded" style="display: none;">
+            <div class="accordion-header">
+              <span><i data-lucide="orbit"></i> Parámetros del Túnel</span>
+            </div>
+            <div class="accordion-content">
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tunnel-cam-shake">Intensidad de Cámara (Shake)</label>
+                  <span class="value-badge">1.0</span>
+                </div>
+                <input type="range" id="input-tunnel-cam-shake" class="setting-input" min="0.0" max="3.0" step="0.1" value="1.0">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tunnel-width">Ancho del Túnel</label>
+                  <span class="value-badge">4.0</span>
+                </div>
+                <input type="range" id="input-tunnel-width" class="setting-input" min="1.5" max="8.0" step="0.2" value="4.0">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tunnel-distortion">Turbulencia / Distorsión</label>
+                  <span class="value-badge">0.3</span>
+                </div>
+                <input type="range" id="input-tunnel-distortion" class="setting-input" min="0.0" max="1.5" step="0.05" value="0.3">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tunnel-orb-size">Tamaño del Orbe (Esfera)</label>
+                  <span class="value-badge">0.1</span>
+                </div>
+                <input type="range" id="input-tunnel-orb-size" class="setting-input" min="0.0" max="1.5" step="0.05" value="0.1">
+              </div>
+
+              <div class="control-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                <label for="input-tunnel-show-star" style="margin-bottom: 0;">Mostrar Estrella Central</label>
+                <input type="checkbox" id="input-tunnel-show-star" class="setting-input" checked style="width: auto; margin-left: 10px; transform: scale(1.5);">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tunnel-color-cycle">Frecuencia del Color</label>
+                  <span class="value-badge">0.1</span>
+                </div>
+                <input type="range" id="input-tunnel-color-cycle" class="setting-input" min="0.01" max="0.8" step="0.01" value="0.1">
+              </div>
+
+              <div class="control-group">
+                <div class="label-row">
+                  <label for="input-tunnel-glow">Brillo del Túnel (Glow)</label>
+                  <span class="value-badge">6.0</span>
+                </div>
+                <input type="range" id="input-tunnel-glow" class="setting-input" min="1.5" max="15.0" step="0.2" value="6.0">
+              </div>
+
+              <div class="control-group">
+                <label for="input-tunnel-color-picker">Tonalidad del Túnel (Frecuencia)</label>
+                <input type="color" id="input-tunnel-color-picker" class="setting-input color-picker" value="#b33c00">
+              </div>
+
+              <div class="control-group" id="group-loop-duration" style="display: none; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div class="label-row">
+                  <label for="input-loop-duration" style="color: #4cd137;">Duración de Bucle (seg)</label>
+                  <span class="value-badge" style="background: #4cd137; color: #000;">5.0</span>
+                </div>
+                <input type="range" id="input-loop-duration" class="setting-input" min="2.0" max="30.0" step="0.5" value="5.0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="sidebar-section export-section">
+          <h2 class="section-title">
+            <i data-lucide="download"></i> Exportar a Video
+          </h2>
+          
+          <div class="export-form">
+            <div class="export-row-two-col">
+              <div class="control-group">
+                <label for="rec-duration">Duración (seg.)</label>
+                <input type="number" id="rec-duration" min="1" max="60" value="5">
+              </div>
+              <div class="control-group">
+                <label for="rec-fps">Fotogramas (FPS)</label>
+                <div class="select-wrapper">
+                  <select id="rec-fps">
+                    <option value="30" selected>30 FPS</option>
+                    <option value="60">60 FPS</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="export-row-two-col">
+              <div class="control-group">
+                <label for="rec-width">Ancho (px)</label>
+                <div class="select-wrapper">
+                  <select id="rec-width">
+                    <option value="1920">1920 (FHD)</option>
+                    <option value="1280" selected>1280 (HD)</option>
+                    <option value="720">720 (SD)</option>
+                    <option value="1080">1080 (Cuadrado)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="control-group">
+                <label for="rec-height">Alto (px)</label>
+                <div class="select-wrapper">
+                  <select id="rec-height">
+                    <option value="1080">1080 (FHD)</option>
+                    <option value="720" selected>720 (HD)</option>
+                    <option value="720">720 (SD)</option>
+                    <option value="1080">1080 (Cuadrado)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="rec-bitrate">Calidad / Tasa de Bits (Bitrate)</label>
+              <div class="select-wrapper">
+                <select id="rec-bitrate">
+                  <option value="30000000" selected>Ultra / Calidad de Estudio (30 Mbps)</option>
+                  <option value="15000000">Alta Calidad (15 Mbps)</option>
+                  <option value="8000000">Media (8 Mbps)</option>
+                  <option value="3000000">Baja (Para compartir, 3 Mbps)</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="btn-record" class="btn-primary" style="margin-bottom: 10px;">
+              <i data-lucide="video"></i> Exportar Video WebM (Rápido)
+            </button>
+            
+            <button id="btn-record-mp4" class="btn-primary" style="background-color: #6c5ce7; border-color: #6c5ce7;">
+              <i data-lucide="download"></i> Renderizar MP4 (Alta Calidad CLI)
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Visual Workspace -->
+      <main class="workspace">
+        <div id="canvas-container">
+          <canvas id="canvas-preview"></canvas>
+        </div>
+
+        <!-- Controls overlay bar -->
+        <div class="timeline-bar">
+          <div class="play-controls">
+            <button id="btn-play" class="control-btn active" title="Reproducir">
+              <i data-lucide="play"></i>
+            </button>
+            <button id="btn-pause" class="control-btn" title="Pausar">
+              <i data-lucide="pause"></i>
+            </button>
+            <button id="btn-stop" class="control-btn" title="Detener / Reiniciar">
+              <i data-lucide="square"></i>
+            </button>
+          </div>
+
+          <div class="timeline-slider-wrapper">
+            <input type="range" id="timeline-range" min="0" max="30" step="0.05" value="0">
+            <span id="time-display">0.00s</span>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progress-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Exportando Animación Shader</h3>
+        <p>Renderizando fotogramas a velocidad fija para un video perfectamente fluido...</p>
+        
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+          </div>
+          <span id="progress-percent">0%</span>
+        </div>
+        
+        <button id="btn-cancel-record" class="btn-secondary">Cancelar Exportación</button>
+      </div>
+    </div>
+
+    <!-- Floating Toast Message -->
+    <div id="toast" class="toast">Efecto modificado</div>
+  </div>
+
+  <!-- Main script -->
+  <script type="module" src="/main.js"></script>
+
+  <!-- Script to update select elements or simple layout triggers -->
+  <script>
+    // Handle toggle presets display based on mode selection
+    document.getElementById('mode-select').addEventListener('change', function(e) {
+      const mode = e.target.value;
+      const galaxyRows = document.querySelectorAll('.mode-galaxy-only');
+      const milkyWayRows = document.querySelectorAll('.mode-milkyway-only');
+      const tunnelRows = document.querySelectorAll('.mode-tunnel-only');
+      
+      galaxyRows.forEach(el => el.style.display = (mode === '1.0' ? 'flex' : 'none'));
+      milkyWayRows.forEach(el => el.style.display = (mode === '0.0' ? 'flex' : 'none'));
+      tunnelRows.forEach(el => el.style.display = (mode === '2.0' || mode === '3.0' || mode === '4.0' ? 'flex' : 'none'));
+      
+      const groupLoop = document.getElementById('group-loop-duration');
+      if (groupLoop) groupLoop.style.display = (mode === '3.0' || mode === '4.0' ? 'flex' : 'none');
+      
+      const groupSpeed = document.getElementById('group-speed');
+      if (groupSpeed) groupSpeed.style.display = (mode === '3.0' || mode === '4.0' ? 'none' : 'flex');
+      
+      // Auto-trigger first preset of new mode
+      const modeName = mode === '1.0' ? 'galaxy' : (mode === '0.0' ? 'milkyway' : 'tunnel');
+      const activePresetBtn = document.querySelector(`.preset-btn[data-mode="${modeName}"][data-preset="default"]`);
+      if (activePresetBtn) {
+        activePresetBtn.click();
+      }
+    });
+
+    // Handle resolution select linking for typical aspects
+    const wSelect = document.getElementById('rec-width');
+    const hSelect = document.getElementById('rec-height');
+    wSelect.addEventListener('change', function() {
+      if (wSelect.value === '1920') hSelect.value = '1080';
+      else if (wSelect.value === '1280') hSelect.value = '720';
+      else if (wSelect.value === '720') hSelect.value = '720'; // square SD
+      else if (wSelect.value === '1080') hSelect.value = '1080'; // square HD
+    });
+    hSelect.addEventListener('change', function() {
+      if (hSelect.value === '1080' && wSelect.value !== '1080') wSelect.value = '1920';
+      else if (hSelect.value === '720' && wSelect.value !== '720') wSelect.value = '1280';
+    });
+  </script>
+</body>
+</html>
