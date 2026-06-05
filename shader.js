@@ -137,11 +137,6 @@ export const fragmentShader = `
       vec2 u = fragCoord.xy;
       u = (u + u - p.xy) / p.y;
       
-      // cinema bars
-      if (abs(u.y) > 0.8) {
-          return vec4(0.0, 0.0, 0.0, 1.0);
-      }
-      
       // camera shake
       u += vec2(cos(t * 0.4) * 0.3, cos(t * 0.8) * 0.1) * u_tunnel_cam_shake;
       
@@ -198,8 +193,6 @@ export const fragmentShader = `
       vec2 u = fragCoord.xy;
       u = (u + u - p.xy) / p.y;
       
-      if (abs(u.y) > 0.8) return vec4(0.0, 0.0, 0.0, 1.0);
-      
       // Camera movement
       u += vec2(timeCos * 0.3, sin(t * W * 2.0) * 0.1) * u_tunnel_cam_shake;
       
@@ -251,8 +244,6 @@ export const fragmentShader = `
       vec3 p = vec3(iResolution, 0.0);
       vec2 u = fragCoord.xy;
       u = (u + u - p.xy) / p.y;
-
-      if (abs(u.y) > 0.8) { return vec4(0.0, 0.0, 0.0, 1.0); }
 
       // camera movement (frequencies 2k and 4k)
       u += vec2(cos(2.0 * k * t) * 0.3, cos(4.0 * k * t) * 0.1) * u_tunnel_cam_shake;
@@ -308,8 +299,6 @@ export const fragmentShader = `
       float TAU = 6.28318530718;
 
       vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
-      
-      if (abs(uv.y) > 0.38) return vec4(0.0, 0.0, 0.0, 1.0);
       
       float lt = iTimeReal / LOOP_DUR * TAU;
       float z_time = fract(iTimeReal / LOOP_DUR) * P;

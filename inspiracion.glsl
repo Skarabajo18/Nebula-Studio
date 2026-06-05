@@ -8,7 +8,7 @@ void mainImage(out vec4 o, vec2 u) {
     u = (u+u-p.xy)/p.y;
     
     // cinema bars
-    if (abs(u.y) > .8) { o = vec4(0); return; }
+   
     
     // camera movement
     u += vec2(cos(t*.4)*.3, cos(t*.8)*.1);
