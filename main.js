@@ -227,6 +227,18 @@ const presets = {
       u_speed: 1.5,
       u_brightness: 1.2,
       u_color_tint: '#e6ffee'
+    },
+    skarabajo: {
+      u_tunnel_cam_shake: 1.0,
+      u_tunnel_width: 4.0,
+      u_tunnel_distortion: 0.3,
+      u_tunnel_orb_size: 0.1,
+      u_tunnel_color_cycle: 0.1,
+      u_tunnel_glow: 6.0,
+      u_tunnel_color_picker: '#1a0033',
+      u_speed: 1.0,
+      u_brightness: 1.0,
+      u_color_tint: '#ffffff'
     }
   }
 };
@@ -749,7 +761,7 @@ btnRecordMp4.addEventListener('click', async () => {
     fps: parseInt(recFpsSelect.value) || 30,
     durationSeconds: parseFloat(recDurationInput.value) || 5,
     outputFile: 'output.mp4',
-    startTime: (modeSelect.value === '3.0' || modeSelect.value === '4.0') ? 0.0 : iTime, // Guardar el tiempo actual (forzar 0 en bucle)
+    startTime: (modeSelect.value === '3.0' || modeSelect.value === '4.0' || modeSelect.value === '5.0') ? 0.0 : iTime, // Guardar el tiempo actual (forzar 0 en bucle)
     uiState: {}
   };
 

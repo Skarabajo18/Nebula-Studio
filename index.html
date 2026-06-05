@@ -41,6 +41,7 @@
                 <option value="2.0">Túnel Cósmico (Normal)</option>
                 <option value="3.0">Túnel Cósmico (Bucle Infinito)</option>
                 <option value="4.0">Túnel Cósmico (Oscilante Exacto)</option>
+                <option value="5.0">Agujero Gusano Cósmico (Skarabajo)</option>
               </select>
             </div>
           </div>
@@ -69,6 +70,7 @@
               <button class="preset-btn" data-mode="tunnel" data-preset="wormhole">Agujero Gusano</button>
               <button class="preset-btn" data-mode="tunnel" data-preset="nebulapass">Paso Nebulosa</button>
               <button class="preset-btn" data-mode="tunnel" data-preset="cybertunnel">Cíber Túnel</button>
+              <button class="preset-btn" data-mode="tunnel" data-preset="skarabajo">Skarabajo</button>
             </div>
           </div>
         </div>
@@ -463,13 +465,13 @@
       
       galaxyRows.forEach(el => el.style.display = (mode === '1.0' ? 'flex' : 'none'));
       milkyWayRows.forEach(el => el.style.display = (mode === '0.0' ? 'flex' : 'none'));
-      tunnelRows.forEach(el => el.style.display = (mode === '2.0' || mode === '3.0' || mode === '4.0' ? 'flex' : 'none'));
+      tunnelRows.forEach(el => el.style.display = (mode === '2.0' || mode === '3.0' || mode === '4.0' || mode === '5.0' ? 'flex' : 'none'));
       
       const groupLoop = document.getElementById('group-loop-duration');
-      if (groupLoop) groupLoop.style.display = (mode === '3.0' || mode === '4.0' ? 'flex' : 'none');
+      if (groupLoop) groupLoop.style.display = (mode === '3.0' || mode === '4.0' || mode === '5.0' ? 'flex' : 'none');
       
       const groupSpeed = document.getElementById('group-speed');
-      if (groupSpeed) groupSpeed.style.display = (mode === '3.0' || mode === '4.0' ? 'none' : 'flex');
+      if (groupSpeed) groupSpeed.style.display = (mode === '3.0' || mode === '4.0' || mode === '5.0' ? 'none' : 'flex');
       
       // Auto-trigger first preset of new mode
       const modeName = mode === '1.0' ? 'galaxy' : (mode === '0.0' ? 'milkyway' : 'tunnel');

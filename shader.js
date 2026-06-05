@@ -301,6 +301,114 @@ export const fragmentShader = `
       return tanh(o / u_tunnel_glow / max(dot(u, u), 0.001));
   }
 
+  vec4 RenderSkarabajoFinal(vec2 fragCoord, float iTimeReal, float loopDuration) {
+      float P = 40.0;
+      float K = 6.28318530718 / P;
+      float LOOP_DUR = loopDuration;
+      float TAU = 6.28318530718;
+
+      vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+      
+      if (abs(uv.y) > 0.38) return vec4(0.0, 0.0, 0.0, 1.0);
+      
+      float lt = iTimeReal / LOOP_DUR * TAU;
+      float z_time = fract(iTimeReal / LOOP_DUR) * P;
+      
+      vec3 ro = vec3(
+          sin(z_time * K * 1.0) * 1.8 + cos(z_time * K * 2.0) * 0.6,
+          cos(z_time * K * 1.0) * 1.8 + sin(z_time * K * 3.0) * 0.6,
+          z_time
+      );
+      
+      float tz = z_time + 2.0;
+      vec3 target = vec3(
+          sin(tz * K * 1.0) * 1.8 + cos(tz * K * 2.0) * 0.6,
+          cos(tz * K * 1.0) * 1.8 + sin(tz * K * 3.0) * 0.6,
+          tz
+      );
+      
+      vec3 ww = normalize(target - ro);
+      float roll = sin(z_time * K * 1.0) * 0.4 * u_tunnel_cam_shake;
+      vec3 up = vec3(sin(roll), cos(roll), 0.0);
+      vec3 uu = normalize(cross(ww, up));
+      vec3 vv = normalize(cross(uu, ww));
+      vec3 rd = normalize(uv.x * uu + uv.y * vv + 1.0 * ww); 
+      
+      float t_march = 0.0;
+      vec3 col = vec3(0.0);
+      
+      for (int i = 0; i < 100; i++) {
+          vec3 p = ro + rd * t_march;
+          
+          vec2 tun = p.xy - vec2(
+              sin(p.z * K * 1.0) * 1.8 + cos(p.z * K * 2.0) * 0.6,
+              cos(p.z * K * 1.0) * 1.8 + sin(p.z * K * 3.0) * 0.6
+          );
+          
+          float tunnelRadius = u_tunnel_width * 0.875;
+          float d = tunnelRadius - length(tun);
+          
+          float R = P / TAU;
+          vec3 q = vec3(tun.x, tun.y + R * sin(p.z * K), R * cos(p.z * K));
+          
+          float s_lt = sin(lt) * 0.2;
+          q.xy *= mat2(cos(s_lt), -sin(s_lt), sin(s_lt), cos(s_lt));
+          
+          float a = 0.5;
+          for (int j = 0; j < 5; j++) {
+              q += cos(q.yzx * 1.3 + vec3(sin(lt), cos(lt), 0.0)) * (u_tunnel_distortion * 1.333);
+              d -= abs(dot(sin(q * a), vec3(0.4))) / a;
+              a *= 1.7;
+          }
+          
+          float stepSize = min(0.3 * abs(d) + 0.015, 1.0);
+          t_march += stepSize;
+          if (t_march > 35.0) break;
+          
+          float accum = 1.0 / (abs(d) + 0.1);
+          
+          vec3 cavernCol = vec3(0.02, 0.01, 0.04) + u_tunnel_color_vec * 0.05 * cos(p.z * 0.3 + vec3(0.0, 1.5, 3.0));
+          
+          float coreDist = length(tun);
+          vec3 coreGlow = vec3(0.0, 0.3, 0.8) * (0.05 / (coreDist * coreDist + 0.1)) * (u_tunnel_glow * 0.16);
+          
+          float ring = sin(p.z * K * 12.0 - lt * (u_tunnel_color_cycle * 40.0));
+          float ringGlow = smoothstep(0.9, 1.0, ring) * (0.02 / (abs(d) + 0.02)) * (u_tunnel_glow * 0.16);
+          vec3 ringCol = vec3(0.0, 0.6, 1.0) * ringGlow;
+          
+          float fade = exp(-t_march * 0.08); 
+          
+          col += (cavernCol * accum + coreGlow + ringCol) * stepSize * 0.4 * fade;
+          
+          if (u_tunnel_show_star > 0.5) {
+              vec3 pos = vec3(p.x, p.y + R*sin(p.z*K), R*cos(p.z*K)) * 2.0;
+              vec3 id = floor(pos);
+              vec3 ph = fract(id * vec3(443.8, 397.2, 491.1)); ph += dot(ph, ph.yxz + 19.1);
+              if (fract((ph.x + ph.y) * ph.z) > 0.985) {
+                  vec3 f = fract(pos);
+                  vec3 id1=id+1.0; vec3 ph1=fract(id1*vec3(443.8,397.2,491.1)); ph1+=dot(ph1,ph1.yxz+19.1); float h1=fract((ph1.x+ph1.y)*ph1.z);
+                  vec3 id2=id+2.0; vec3 ph2=fract(id2*vec3(443.8,397.2,491.1)); ph2+=dot(ph2,ph2.yxz+19.1); float h2=fract((ph2.x+ph2.y)*ph2.z);
+                  vec3 id3=id+3.0; vec3 ph3=fract(id3*vec3(443.8,397.2,491.1)); ph3+=dot(ph3,ph3.yxz+19.1); float h3=fract((ph3.x+ph3.y)*ph3.z);
+                  
+                  vec3 center = vec3(h1, h2, h3);
+                  float pd = length(f - center);
+                  float pulse = 0.5 + 0.5 * sin(lt * 5.0 + fract((ph.x+ph.y)*ph.z) * TAU);
+                  col += vec3(0.4, 0.8, 1.0) * (0.002 / (pd * pd + 0.001)) * pulse * stepSize * fade * 3.0;
+              }
+          }
+      }
+      
+      col = tanh(col);
+      col = col * col * (3.0 - 2.0 * col);
+      col = mix(col, col * vec3(0.85, 0.95, 1.0), 0.5);
+      
+      float vig = length(uv);
+      col *= smoothstep(1.3, 0.3, vig);
+      
+      col = pow(max(col, 0.0), vec3(0.4545));
+      return vec4(col, 1.0);
+  }
+
   void mainImage( out vec4 fragColor, in vec2 fragCoord )
   {
       vec2 uv = fragCoord.xy / iResolution.xy;
@@ -308,7 +416,11 @@ export const fragmentShader = `
       
       vec4 finalColor = vec4(0.0);
       
-      if (u_mode > 3.5) {
+      if (u_mode > 4.5) {
+          // SKARABAJO FINAL
+          finalColor = RenderSkarabajoFinal(fragCoord, iTime, u_loop_duration);
+          
+      } else if (u_mode > 3.5) {
           // EFFECT-4
           finalColor = RenderEffect4Seamless(fragCoord, iTime, u_loop_duration);
           
